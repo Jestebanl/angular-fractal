@@ -1,1 +1,25 @@
-<p>aside-bar works!</p>
+<aside class="h-full bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center">
+      <img src="logoFractal.png" alt="Logo" class="w-8 h-8 mr-3" />
+      <h2 class="text-xl font-bold text-gray-700 dark:text-gray-300">Fractal-Maker</h2>
+    </div>
+    <button (click)="toggleDarkMode()" class="p-2 bg-gray-200 dark:bg-gray-700 rounded-full hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none">
+      <!-- Icono dinámico -->
+      <svg *ngIf="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Icono de luna -->
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      </svg>
+      <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 dark:text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Icono de sol -->
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m6.364-.636l1.414 1.414M21 12h2m-.636 6.364l1.414-1.414M12 21v2m-6.364-.636l1.414-1.414M3 12H1m-.636-6.364L1.778 7.05M12 5a7 7 0 110 14a7 7 0 010-14z" />
+      </svg>
+    </button>
+  </div>
+  
+  <ul class="space-y-2">
+    <li class="p-2 bg-gray-200 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">Componente 1</li>
+    <li class="p-2 bg-gray-200 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">Componente 2</li>
+    <!-- Agrega más componentes -->
+  </ul>
+</aside>

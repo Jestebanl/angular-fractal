@@ -1,0 +1,11 @@
+{
+  "plugins": {
+    "@tailwindcss/postcss": {
+      "darkMode": "class",
+      "theme": {
+        "extend": {}
+      },
+      "plugins": []
+    }
+  }
+}
