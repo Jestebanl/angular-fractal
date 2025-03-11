@@ -16,10 +16,20 @@
       </svg>
     </button>
   </div>
-  
+
   <ul class="space-y-2">
-    <li class="p-2 bg-gray-200 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">Componente 1</li>
-    <li class="p-2 bg-gray-200 dark:bg-gray-700 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">Componente 2</li>
-    <!-- Agrega más componentes -->
+    <li *ngFor="let category of categories" class="bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
+      <div (click)="category.isOpen = !category.isOpen" class="p-2 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 flex justify-between items-center">
+        <span>{{ category.name }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform" [ngClass]="{'rotate-180': category.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+      <ul *ngIf="category.isOpen" class="pl-4 py-2 space-y-1">
+        <li *ngFor="let component of category.components" class="p-2 bg-gray-100 dark:bg-gray-600 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500">
+          {{ component }}
+        </li>
+      </ul>
+    </li>
   </ul>
 </aside>
