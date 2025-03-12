@@ -1,5 +1,6 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { ComponenteService } from '../../../shared/services/componente.service';
 
 @Component({
   selector: 'app-aside-bar',
@@ -9,30 +10,50 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AsideBarComponent implements OnInit {
   isDarkMode: boolean = false;
-  categories = [
-    {
-      name: 'Componentes de UI',
-      isOpen: false,
-      components: ['Botón', 'Formulario', 'Tabla', 'Modal']
-    },
-    {
-      name: 'Services',
-      isOpen: false,
-      components: ['AuthService', 'DataService', 'ApiService']
-    },
-    {
-      name: 'Guards',
-      isOpen: false,
-      components: ['AuthGuard', 'RoleGuard', 'CanDeactivateGuard']
-    },
-    {
-      name: 'Modelos',
-      isOpen: false,
-      components: ['Usuario', 'Producto', 'Pedido']
-    }
-  ];
+  categories: any[] = [];
+
+  constructor(private componenteService: ComponenteService) {}
+
   ngOnInit() {
     this.loadDarkModePreference();
+    this.loadComponentes();
+  }
+
+  loadComponentes() {
+    this.componenteService.getComponentes().subscribe(
+      componentes => {
+        this.categories = this.groupComponentesByCategory(componentes);
+      },
+      error => {
+        console.error('Error al cargar componentes:', error);
+      }
+    );
+  }
+
+  groupComponentesByCategory(componentes: any[]): any[] {
+    const groupedComponents = componentes.reduce((acc, componente) => {
+      if (!acc[componente.categoria]) {
+        acc[componente.categoria] = {
+          name: componente.categoria,
+          isOpen: false,
+          types: {}
+        };
+      }
+      if (!acc[componente.categoria].types[componente.tipo]) {
+        acc[componente.categoria].types[componente.tipo] = {
+          name: componente.tipo,
+          isOpen: false,
+          components: []
+        };
+      }
+      acc[componente.categoria].types[componente.tipo].components.push(componente);
+      return acc;
+    }, {});
+
+    return Object.values(groupedComponents).map((category: any) => ({
+      ...category,
+      types: Object.values(category.types)
+    }));
   }
   
   loadDarkModePreference() {

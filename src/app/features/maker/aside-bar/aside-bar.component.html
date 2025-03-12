@@ -33,9 +33,21 @@
         </svg>
       </div>
       <ul *ngIf="category.isOpen" class="pl-4 py-2 space-y-1">
-        <li *ngFor="let component of category.components"
-          class="p-2 bg-gray-100 dark:bg-gray-600 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500">
-          {{ component }}
+        <li *ngFor="let type of category.types" class="bg-gray-100 dark:bg-gray-600 rounded overflow-hidden">
+          <div (click)="type.isOpen = !type.isOpen"
+            class="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500 flex justify-between items-center">
+            <span>{{ type.name }}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+              [ngClass]="{'rotate-180': type.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <ul *ngIf="type.isOpen" class="pl-4 py-1 space-y-1">
+            <li *ngFor="let component of type.components"
+              class="p-2 bg-gray-50 dark:bg-gray-500 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-400">
+              {{ component.nombre }}
+            </li>
+          </ul>
         </li>
       </ul>
     </li>
