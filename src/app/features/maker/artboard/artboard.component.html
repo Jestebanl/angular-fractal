@@ -1,8 +1,13 @@
 <main class="h-screen bg-white dark:bg-gray-900 p-6 overflow-y-auto">
   <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4">Espacio de trabajo</h2>
-  <div class="border-dashed border-4 border-gray-300 dark:border-gray-600 rounded-lg h-[calc(100vh-8rem)] flex items-center justify-center">
+  <div
+    class="border-dashed border-4 border-gray-300 dark:border-gray-600 rounded-lg h-[calc(100vh-8rem)] flex items-center justify-center">
     <!-- <p class="text-gray-500 dark:text-gray-400">Arrastra y suelta aquí</p> -->
-    <app-toast-libreria/>
+    <app-toast-libreria [backgroundColor]="'text-gray-500 bg-white dark:text-gray-400 dark:bg-gray-800'"
+      [iconBackgroundColor]="'text-blue-500 bg-blue-100 dark:bg-blue-800 dark:text-blue-200'"
+      [iconColor]="'text-blue-500'" [iconPath]="'M4 6h16M4 12h16m-7 6h7'" [iconDescription]="'UI component icon'"
+      [textColor]="'text-gray-500 dark:text-gray-400'" [message]="'Ejemplo de componente de ui'">
+    </app-toast-libreria>
   </div>
-  <app-isla-herramientas/>
+  <app-isla-herramientas />
 </main>
