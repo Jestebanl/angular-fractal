@@ -5,7 +5,12 @@ import { Component, Input } from '@angular/core';
   selector: 'app-toast-libreria',
   imports: [CommonModule],
   templateUrl: './toast-libreria.component.html',
-  styles: ``
+  styles: `
+  app-toast-libreria {
+    position: absolute;
+    z-index: 1000;
+  }
+  `
 })
 export class ToastLibreriaComponent {
   @Input() backgroundColor: string = 'text-green-800 bg-green-50 dark:text-green-400 dark:bg-gray-800';
