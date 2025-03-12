@@ -44,7 +44,7 @@
             </svg>
           </div>
           <ul *ngIf="type.isOpen" class="pl-4 py-1 space-y-1">
-            <li *ngFor="let component of type.components"
+            <li *ngFor="let component of type.components" (click)="abrirPopup(component)"
               class="p-2 bg-gray-50 dark:bg-gray-500 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-400">
               {{ component.nombre }}
             </li>
@@ -60,3 +60,8 @@
     </button>
   </div>
 </aside>
+<app-ventana-componente
+  *ngIf="componenteSeleccionado"
+  [componente]="componenteSeleccionado"
+  (cerrar)="cerrarPopup()">
+</app-ventana-componente>
