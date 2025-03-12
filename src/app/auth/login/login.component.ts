@@ -9,13 +9,14 @@ import { toast } from 'ngx-sonner';
 import { hasEmailError, isRequired } from '../utils/validators';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { NgIf } from '@angular/common';
 export interface FormSignIn {
   email: FormControl<string | null>;
   password: FormControl<string | null>;
 }
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule,NgIf],
   templateUrl: './login.component.html',
   styles: ``
 })
