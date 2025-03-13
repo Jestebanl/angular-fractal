@@ -48,11 +48,11 @@ export class ArtboardComponent {
   }
 
   private crearToastDinamico(toastData: any) {
-    const componentRef = this.toastContainer.createComponent(ToastLibreriaComponent);
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ToastLibreriaComponent);
+    const componentRef = this.toastContainer.createComponent(componentFactory);
     
     Object.keys(toastData).forEach(key => {
       (componentRef.instance as any)[key] = toastData[key];
-      console.log(key, toastData[key]);
     });
   
     componentRef.instance.cdkDrag = true;

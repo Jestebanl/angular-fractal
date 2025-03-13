@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class VentanaComponenteComponent {
   @Input() componente: any;
   @Output() cerrar = new EventEmitter<void>();
+  @Output() insertar = new EventEmitter<any>();
 
   cerrarPopup() {
     this.cerrar.emit();
@@ -19,7 +20,6 @@ export class VentanaComponenteComponent {
       this.cerrarPopup();
     }
   }
-  @Output() insertar = new EventEmitter<any>();
 
   insertarComponente() {
     this.insertar.emit(this.componente);
