@@ -9,6 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class VentanaComponenteComponent {
   @Input() componente: any;
   @Output() cerrar = new EventEmitter<void>();
+  @Output() insertar = new EventEmitter<any>();
 
   cerrarPopup() {
     this.cerrar.emit();
@@ -18,5 +19,10 @@ export class VentanaComponenteComponent {
     if (event.target === event.currentTarget) {
       this.cerrarPopup();
     }
+  }
+
+  insertarComponente() {
+    this.insertar.emit(this.componente);
+    this.cerrarPopup();
   }
 }

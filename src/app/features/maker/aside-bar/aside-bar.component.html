@@ -63,5 +63,7 @@
 <app-ventana-componente
   *ngIf="componenteSeleccionado"
   [componente]="componenteSeleccionado"
-  (cerrar)="cerrarPopup()">
+  (cerrar)="cerrarPopup()"
+  (insertar)="insertarComponente($event)">
 </app-ventana-componente>
+
