@@ -1,5 +1,5 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ComponenteService } from '../../../shared/services/componente.service';
 import { VentanaComponenteComponent } from "../components/ventana-componente/ventana-componente.component";
 
@@ -10,6 +10,7 @@ import { VentanaComponenteComponent } from "../components/ventana-componente/ven
   styleUrl: './aside-bar.component.css'
 })
 export class AsideBarComponent implements OnInit {
+  @Output() componenteInsertado = new EventEmitter<any>();
   isDarkMode: boolean = false;
   categories: any[] = [];
 
@@ -78,5 +79,10 @@ export class AsideBarComponent implements OnInit {
 
   cerrarPopup() {
     this.componenteSeleccionado = null;
+  }
+
+  insertarComponente(componente: any) {
+    this.componenteInsertado.emit(componente);
+    this.cerrarPopup();
   }
 }

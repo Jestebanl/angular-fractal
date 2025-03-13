@@ -19,4 +19,10 @@ export class VentanaComponenteComponent {
       this.cerrarPopup();
     }
   }
+  @Output() insertar = new EventEmitter<any>();
+
+  insertarComponente() {
+    this.insertar.emit(this.componente);
+    this.cerrarPopup();
+  }
 }

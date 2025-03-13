@@ -20,4 +20,5 @@ export class ToastLibreriaComponent {
   @Input() iconDescription: string = 'UI component icon';
   @Input() textColor: string = 'text-gray-500 dark:text-gray-400';
   @Input() message: string = 'Ejemplo de componente de ui';
+  cdkDrag: boolean;
 }
