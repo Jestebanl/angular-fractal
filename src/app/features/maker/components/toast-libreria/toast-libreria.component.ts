@@ -7,10 +7,14 @@ import { Component, ElementRef, Input, NgZone } from '@angular/core';
   imports: [CommonModule,DragDropModule ],
   templateUrl: './toast-libreria.component.html',
   styles: `
-  app-toast-libreria {
-    position: absolute;
-    z-index: 1000;
-  }
+   :host {
+      position: absolute;
+      z-index: 1000;
+    }
+    .toast-container {
+      transition: transform 0.2s ease-out;
+      cursor: move;
+    }
   `
 })
 export class ToastLibreriaComponent {
@@ -22,16 +26,22 @@ export class ToastLibreriaComponent {
   @Input() textColor: string = 'text-gray-500 dark:text-gray-400';
   @Input() message: string = 'Ejemplo de componente de ui';
   @Input() cdkDragBoundary: any;
-  @Input() cdkDragEnabled: boolean = true;
+
+  position: { [key: string]: string } = { left: '0px', top: '0px' };
 
   constructor(private el: ElementRef, private ngZone: NgZone) {}
 
-  onDragEnded(event: CdkDragEnd<any>): void {
+  ngOnInit() {
+    this.position = {
+      left: this.el.nativeElement.style.left || '0px',
+      top: this.el.nativeElement.style.top || '0px'
+    };
+  }
+
+  onDragEnded(event: CdkDragEnd): void {
     this.ngZone.run(() => {
-      const element = this.el.nativeElement;
       const { x, y } = event.source.getFreeDragPosition();
-      element.style.left = `${x}px`;
-      element.style.top = `${y}px`;
+      this.position = { left: `${x}px`, top: `${y}px` };
     });
   }
 }

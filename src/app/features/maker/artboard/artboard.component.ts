@@ -48,8 +48,9 @@ export class ArtboardComponent {
         (componentRef.instance as any)[key] = toastData[key];
       });
 
+      componentRef.instance.cdkDragBoundary = this.boundaryElement.nativeElement;
+
       const element = componentRef.location.nativeElement;
-      this.renderer.addClass(element, 'absolute');
       this.renderer.setStyle(element, 'position', 'absolute');
       this.renderer.setStyle(element, 'left', '20px');
       this.renderer.setStyle(element, 'top', '20px');
@@ -58,12 +59,12 @@ export class ArtboardComponent {
     });
   }
 
-  onDragEnded(event: CdkDragEnd) {
-    // Este método se maneja ahora en el componente ToastLibreriaComponent
-  }
-
   async logOut() {
     await this._authState.logOut();
     this._router.navigateByUrl('/auth/login');
+  }
+
+  onDragEnded(event: CdkDragEnd) {
+    // Este método se maneja ahora en el componente ToastLibreriaComponent
   }
 }

@@ -1,17 +1,17 @@
 <div cdkDrag
-[cdkDragBoundary]="cdkDragBoundary"
-(cdkDragEnded)="onDragEnded($event)"
-class="flex items-center w-full max-w-xs p-4 rounded-lg shadow-sm"
-[ngClass]="backgroundColor"
-role="alert">
-<div class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg"
-  [ngClass]="iconBackgroundColor">
-<svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-    [ngClass]="iconColor"
-    stroke="currentColor">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="iconPath" />
-</svg>
-<span class="sr-only">{{iconDescription}}</span>
-</div>
-<div class="ms-3 text-sm font-normal" [ngClass]="textColor">{{message}}</div>
-</div>
+         [cdkDragBoundary]="cdkDragBoundary"
+         (cdkDragEnded)="onDragEnded($event)"
+         class="flex items-center w-full max-w-xs p-4 rounded-lg shadow-sm"
+         [ngClass]="backgroundColor"
+         role="alert">
+      <div class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg"
+           [ngClass]="iconBackgroundColor">
+        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             [ngClass]="iconColor"
+             stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="iconPath" />
+        </svg>
+        <span class="sr-only">{{iconDescription}}</span>
+      </div>
+      <div class="ms-3 text-sm font-normal" [ngClass]="textColor">{{message}}</div>
+    </div>
