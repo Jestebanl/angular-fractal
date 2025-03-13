@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef, Renderer2, NgZone } from '@angular/core';
 import { IslaHerramientasComponent } from "../components/isla-herramientas/isla-herramientas.component";
 import { ToastLibreriaComponent } from "../components/toast-libreria/toast-libreria.component";
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { ComponenteService } from '../../../shared/services/componente.service';
 @Component({
   selector: 'app-artboard',
-  imports: [IslaHerramientasComponent,DragDropModule],
+  imports: [IslaHerramientasComponent, DragDropModule],
   templateUrl: './artboard.component.html',
   styleUrl: './artboard.component.css'
 })
@@ -17,22 +17,14 @@ export class ArtboardComponent {
 
   toastPosition = { x: 0, y: 0 };
 
-  onDragEnded(event: CdkDragEnd) {
-    this.toastPosition = event.source.getFreeDragPosition();
-  }
-  private _authState = inject(AuthStateService);
-  private _router = inject(Router);
-
-  async logOut() {
-    await this._authState.logOut();
-    this._router.navigateByUrl('/auth/login');
-  }
-  //----------------------------------------
   @ViewChild('toastContainer', { read: ViewContainerRef, static: true }) toastContainer!: ViewContainerRef;
-
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
-    private componenteService: ComponenteService
+    private componenteService: ComponenteService,
+    private renderer: Renderer2,
+    private _authState: AuthStateService,
+    private _router: Router,
+    private ngZone: NgZone
   ) {}
   insertarComponente(componente: any) {
     if (componente.toastReferenciado) {
@@ -48,18 +40,30 @@ export class ArtboardComponent {
   }
 
   private crearToastDinamico(toastData: any) {
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ToastLibreriaComponent);
-    const componentRef = this.toastContainer.createComponent(componentFactory);
-    
-    Object.keys(toastData).forEach(key => {
-      (componentRef.instance as any)[key] = toastData[key];
+    this.ngZone.run(() => {
+      const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ToastLibreriaComponent);
+      const componentRef = this.toastContainer.createComponent(componentFactory);
+      
+      Object.keys(toastData).forEach(key => {
+        (componentRef.instance as any)[key] = toastData[key];
+      });
+
+      const element = componentRef.location.nativeElement;
+      this.renderer.addClass(element, 'absolute');
+      this.renderer.setStyle(element, 'position', 'absolute');
+      this.renderer.setStyle(element, 'left', '20px');
+      this.renderer.setStyle(element, 'top', '20px');
+
+      componentRef.changeDetectorRef.detectChanges();
     });
-  
-    componentRef.instance.cdkDrag = true;
-  
-    componentRef.location.nativeElement.style.position = 'absolute';
-    componentRef.location.nativeElement.style.left = '20px';
-    componentRef.location.nativeElement.style.top = '20px';
   }
-  
+
+  onDragEnded(event: CdkDragEnd) {
+    // Este método se maneja ahora en el componente ToastLibreriaComponent
+  }
+
+  async logOut() {
+    await this._authState.logOut();
+    this._router.navigateByUrl('/auth/login');
+  }
 }

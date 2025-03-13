@@ -1,9 +1,10 @@
+import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, ElementRef, Input, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-toast-libreria',
-  imports: [CommonModule],
+  imports: [CommonModule,DragDropModule ],
   templateUrl: './toast-libreria.component.html',
   styles: `
   app-toast-libreria {
@@ -20,5 +21,17 @@ export class ToastLibreriaComponent {
   @Input() iconDescription: string = 'UI component icon';
   @Input() textColor: string = 'text-gray-500 dark:text-gray-400';
   @Input() message: string = 'Ejemplo de componente de ui';
-  cdkDrag: boolean;
+  @Input() cdkDragBoundary: any;
+  @Input() cdkDragEnabled: boolean = true;
+
+  constructor(private el: ElementRef, private ngZone: NgZone) {}
+
+  onDragEnded(event: CdkDragEnd<any>): void {
+    this.ngZone.run(() => {
+      const element = this.el.nativeElement;
+      const { x, y } = event.source.getFreeDragPosition();
+      element.style.left = `${x}px`;
+      element.style.top = `${y}px`;
+    });
+  }
 }
