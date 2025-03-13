@@ -1,4 +1,4 @@
-import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragEnd, CdkDragStart, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, ElementRef, Input, NgZone } from '@angular/core';
 
@@ -23,9 +23,10 @@ export class ToastLibreriaComponent {
   @Input() iconColor: string = 'text-green-500';
   @Input() iconPath: string = 'M5 13l4 4L19 7';
   @Input() iconDescription: string = 'UI component icon';
-  @Input() textColor: string = 'text-gray-500 dark:text-gray-400';
+  @Input() textColor: string = 'text-gray-500 dark:text-gray-200';
   @Input() message: string = 'Ejemplo de componente de ui';
   @Input() cdkDragBoundary: any;
+  @Input() class: string = 'flex items-center w-full max-w-xs p-4 rounded-lg shadow-sm cursor-grab';
 
   position: { [key: string]: string } = { left: '0px', top: '0px' };
 
@@ -38,10 +39,17 @@ export class ToastLibreriaComponent {
     };
   }
 
+  onDragStarted(event: CdkDragStart): void {
+    this.ngZone.run(() => {
+      this.class = 'flex items-center w-full max-w-xs p-4 rounded-lg shadow-sm cursor-grabbing';
+    });
+  }
+
   onDragEnded(event: CdkDragEnd): void {
     this.ngZone.run(() => {
       const { x, y } = event.source.getFreeDragPosition();
       this.position = { left: `${x}px`, top: `${y}px` };
+      this.class = 'flex items-center w-full max-w-xs p-4 rounded-lg shadow-sm cursor-grab';
     });
   }
 }

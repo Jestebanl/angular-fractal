@@ -23,8 +23,8 @@
     </button>
   </div>
 
-  <ul class="space-y-2">
-    <li *ngFor="let category of categories" class="bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
+  <ul class="space-y-2 min-h-4/5">
+    <li *ngFor="let category of categories" class="bg-gray-200 dark:bg-gray-700 dark:text-green-300 rounded overflow-hidden">
       <div (click)="category.isOpen = !category.isOpen"
         class="p-2 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 flex justify-between items-center">
         <span>{{ category.name }}</span>
