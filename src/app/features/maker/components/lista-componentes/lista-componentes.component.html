@@ -1,0 +1,38 @@
+<div class="mb-4">
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Componentes Seleccionados</h3>
+    <button 
+      *ngIf="selectedComponents.length > 0"
+      (click)="clearAllComponents()"
+      class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+      Limpiar Todo
+    </button>
+  </div>
+  
+  <div *ngIf="selectedComponents.length === 0" class="text-xs text-gray-500 dark:text-gray-400 italic text-center py-4">
+    No hay componentes seleccionados
+  </div>
+  
+  <div *ngIf="selectedComponents.length > 0" class="space-y-2 max-h-48 overflow-y-auto">
+    <div *ngFor="let componente of selectedComponents" 
+         class="bg-white dark:bg-gray-600 p-3 rounded-lg shadow-sm border border-gray-200 dark:border-gray-500">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <h4 class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ componente.nombre }}</h4>
+          <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <div><strong>Categoría:</strong> {{ componente.categoria }}</div>
+            <div><strong>Tipo:</strong> {{ componente.tipo }}</div>
+            <div *ngIf="componente.descripcion"><strong>Descripción:</strong> {{ componente.descripcion }}</div>
+          </div>
+        </div>
+        <button 
+          (click)="removeComponent(componente.selectionId)"
+          class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

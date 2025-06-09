@@ -9,7 +9,7 @@ import { Component, ElementRef, Input, NgZone } from '@angular/core';
   styles: `
    :host {
       position: absolute;
-      z-index: 1000;
+      z-index: 40;
     }
     .toast-container {
       transition: transform 0.2s ease-out;

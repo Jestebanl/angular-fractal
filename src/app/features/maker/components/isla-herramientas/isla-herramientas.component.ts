@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export type DrawingTool = 'pointer' | 'rectangle' | 'arrow';
@@ -12,11 +12,17 @@ export type DrawingTool = 'pointer' | 'rectangle' | 'arrow';
 })
 export class IslaHerramientasComponent {
   @Output() toolSelected = new EventEmitter<DrawingTool>();
+  @Output() deleteSelected = new EventEmitter<void>();
+  @Input() hasSelectedElement: boolean = false;
   
   activeTool: DrawingTool = 'pointer';
 
   selectTool(tool: DrawingTool): void {
     this.activeTool = tool;
     this.toolSelected.emit(tool);
+  }
+
+  deleteSelectedElement(): void {
+    this.deleteSelected.emit();
   }
 }

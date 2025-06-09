@@ -1,11 +1,14 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { ComponenteService } from '../../../shared/services/componente.service';
+import { SelectedComponentsService } from '../../../shared/services/selected-components.service';
 import { VentanaComponenteComponent } from "../components/ventana-componente/ventana-componente.component";
+import { ListaComponentesComponent } from "../components/lista-componentes/lista-componentes.component";
 
 @Component({
   selector: 'app-aside-bar',
-  imports: [NgIf, NgFor, NgClass, VentanaComponenteComponent],
+  imports: [NgIf, NgFor, NgClass, VentanaComponenteComponent, ListaComponentesComponent],
   templateUrl: './aside-bar.component.html',
   styleUrl: './aside-bar.component.css'
 })
@@ -14,7 +17,10 @@ export class AsideBarComponent implements OnInit {
   isDarkMode: boolean = false;
   categories: any[] = [];
 
-  constructor(private componenteService: ComponenteService) {}
+  constructor(
+    private componenteService: ComponenteService,
+    private selectedComponentsService: SelectedComponentsService
+  ) {}
 
   ngOnInit() {
     this.loadDarkModePreference();
@@ -82,7 +88,25 @@ export class AsideBarComponent implements OnInit {
   }
 
   insertarComponente(componente: any) {
-    this.componenteInsertado.emit(componente);
+    // Add component to selected list first and get the enhanced component
+    this.selectedComponentsService.addComponent(componente);
+    
+    // Get the component with selectionId from the service
+    this.selectedComponentsService.getSelectedComponents().pipe(
+      take(1) // Take only the current value
+    ).subscribe(components => {
+      const componentWithId = components.find(c => 
+        c.nombre === componente.nombre && 
+        c.categoria === componente.categoria && 
+        c.tipo === componente.tipo
+      );
+      
+      if (componentWithId) {
+        // Emit the component with selectionId
+        this.componenteInsertado.emit(componentWithId);
+      }
+    });
+    
     this.cerrarPopup();
   }
 }

@@ -39,4 +39,27 @@ export class ComponenteService {
       })
     );
   }
+
+  getComponenteConToast(componente: any): Observable<{componente: any, toast: any}> {
+    return this.authService.isLoggedIn().pipe(
+      switchMap(isLoggedIn => {
+        if (isLoggedIn) {
+          const toastDocRef = doc(this.firestore, `Toast/${componente.toastReferenciado.id}`);
+          return docData(toastDocRef).pipe(
+            switchMap(toastData => {
+              return new Observable<{componente: any, toast: any}>(observer => {
+                observer.next({
+                  componente: componente,
+                  toast: toastData
+                });
+                observer.complete();
+              });
+            })
+          );
+        } else {
+          throw new Error('Usuario no autenticado');
+        }
+      })
+    );
+  }
 }
