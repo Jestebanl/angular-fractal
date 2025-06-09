@@ -1,5 +1,6 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { ComponenteService } from '../../../shared/services/componente.service';
 import { SelectedComponentsService } from '../../../shared/services/selected-components.service';
 import { VentanaComponenteComponent } from "../components/ventana-componente/ventana-componente.component";
@@ -87,11 +88,25 @@ export class AsideBarComponent implements OnInit {
   }
 
   insertarComponente(componente: any) {
-    // Add component to selected list
+    // Add component to selected list first and get the enhanced component
     this.selectedComponentsService.addComponent(componente);
     
-    // Emit the component as before
-    this.componenteInsertado.emit(componente);
+    // Get the component with selectionId from the service
+    this.selectedComponentsService.getSelectedComponents().pipe(
+      take(1) // Take only the current value
+    ).subscribe(components => {
+      const componentWithId = components.find(c => 
+        c.nombre === componente.nombre && 
+        c.categoria === componente.categoria && 
+        c.tipo === componente.tipo
+      );
+      
+      if (componentWithId) {
+        // Emit the component with selectionId
+        this.componenteInsertado.emit(componentWithId);
+      }
+    });
+    
     this.cerrarPopup();
   }
 }

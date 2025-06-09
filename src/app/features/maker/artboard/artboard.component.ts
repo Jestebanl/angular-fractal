@@ -1,11 +1,13 @@
-import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef, Renderer2, NgZone, HostListener } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef, Renderer2, NgZone, HostListener, OnInit, OnDestroy, ComponentRef } from '@angular/core';
 import { IslaHerramientasComponent, DrawingTool } from "../components/isla-herramientas/isla-herramientas.component";
 import { ToastLibreriaComponent } from "../components/toast-libreria/toast-libreria.component";
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { AuthStateService } from '../../../shared/services/auth-state.service';
 import { Router } from '@angular/router';
 import { ComponenteService } from '../../../shared/services/componente.service';
+import { SelectedComponentsService } from '../../../shared/services/selected-components.service';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 interface DrawingElement {
   type: 'rectangle' | 'arrow';
@@ -31,7 +33,7 @@ interface DrawingElement {
   templateUrl: './artboard.component.html',
   styleUrl: './artboard.component.css'
 })
-export class ArtboardComponent {
+export class ArtboardComponent implements OnInit, OnDestroy {
   cdkDrag!: boolean;
   @ViewChild('boundaryElement', { static: true }) boundaryElement!: ElementRef;
 
@@ -46,14 +48,37 @@ export class ArtboardComponent {
 
   @ViewChild('toastContainer', { read: ViewContainerRef, static: true }) toastContainer!: ViewContainerRef;
 
+  // Track toast components and their associated selection IDs
+  private toastComponents = new Map<number, ComponentRef<ToastLibreriaComponent>>();
+  private componentRemovedSubscription: Subscription = new Subscription();
+
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private componenteService: ComponenteService,
+    private selectedComponentsService: SelectedComponentsService,
     private renderer: Renderer2,
     private _authState: AuthStateService,
     private _router: Router,
     private ngZone: NgZone
   ) { }
+
+  ngOnInit(): void {
+    // Listen for component removals
+    this.componentRemovedSubscription = this.selectedComponentsService.componentRemoved$.subscribe(
+      (removedComponent) => {
+        this.removeToastBySelectionId(removedComponent.selectionId);
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.componentRemovedSubscription.unsubscribe();
+    // Clean up all toast components
+    this.toastComponents.forEach(componentRef => {
+      componentRef.destroy();
+    });
+    this.toastComponents.clear();
+  }
 
   // Color schemes for light/dark mode
   colorScheme = {
@@ -297,7 +322,8 @@ export class ArtboardComponent {
             ...data.toast,
             message: data.componente.nombre // Use component's name as message
           };
-          this.crearToastDinamico(toastDataWithMessage);
+          // Pass the component's selectionId that was added in aside-bar
+          this.crearToastDinamico(toastDataWithMessage, componente.selectionId);
         },
         (error) => {
           console.error('Error al obtener datos del componente y toast:', error);
@@ -306,7 +332,7 @@ export class ArtboardComponent {
     }
   }
 
-  private crearToastDinamico(toastData: any) {
+  private crearToastDinamico(toastData: any, selectionId?: number) {
     this.ngZone.run(() => {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ToastLibreriaComponent);
       const componentRef = this.toastContainer.createComponent(componentFactory);
@@ -323,7 +349,27 @@ export class ArtboardComponent {
       this.renderer.setStyle(element, 'top', '20px');
 
       componentRef.changeDetectorRef.detectChanges();
+
+      // Store the component reference with its selection ID
+      if (selectionId) {
+        this.toastComponents.set(selectionId, componentRef);
+        console.log('Toast stored with selectionId:', selectionId); // Debug log
+      }
     });
+  }
+
+  private removeToastBySelectionId(selectionId: number): void {
+    console.log('Attempting to remove toast with selectionId:', selectionId); // Debug log
+    console.log('Available toast components:', Array.from(this.toastComponents.keys())); // Debug log
+    
+    const componentRef = this.toastComponents.get(selectionId);
+    if (componentRef) {
+      componentRef.destroy();
+      this.toastComponents.delete(selectionId);
+      console.log('Toast removed successfully'); // Debug log
+    } else {
+      console.log('Toast component not found for selectionId:', selectionId); // Debug log
+    }
   }
 
   async logOut() {
