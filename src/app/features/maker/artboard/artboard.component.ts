@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef, Renderer2, NgZone } from '@angular/core';
+import { Component, ViewChild, ElementRef, inject, ComponentFactoryResolver, ViewContainerRef, Renderer2, NgZone, HostListener } from '@angular/core';
 import { IslaHerramientasComponent, DrawingTool } from "../components/isla-herramientas/isla-herramientas.component";
 import { ToastLibreriaComponent } from "../components/toast-libreria/toast-libreria.component";
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
@@ -92,10 +92,42 @@ export class ArtboardComponent {
     return this.isDarkMode ? this.colorScheme.dark : this.colorScheme.light;
   }
 
+  // Add property to track if any element is selected
+  get hasSelectedElement(): boolean {
+    return this.drawingElements.some(el => el.selected);
+  }
+
+  // Listen for keyboard events
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      this.deleteSelectedElements();
+      event.preventDefault();
+    }
+    if (event.key === 'Escape') {
+      this.deselectAllElements();
+    }
+  }
+
   handleToolSelected(tool: DrawingTool): void {
     this.currentTool = tool;
 
     // Deselect all elements when changing tools
+    this.drawingElements.forEach(el => el.selected = false);
+  }
+
+  // Handle delete from toolbar
+  onDeleteSelected(): void {
+    this.deleteSelectedElements();
+  }
+
+  // Delete selected elements
+  deleteSelectedElements(): void {
+    this.drawingElements = this.drawingElements.filter(el => !el.selected);
+  }
+
+  // Deselect all elements
+  deselectAllElements(): void {
     this.drawingElements.forEach(el => el.selected = false);
   }
 

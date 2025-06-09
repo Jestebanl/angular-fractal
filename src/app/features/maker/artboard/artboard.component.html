@@ -75,5 +75,8 @@
     
     <ng-container #toastContainer></ng-container>
   </div>
-  <app-isla-herramientas (toolSelected)="handleToolSelected($event)" />
+  <app-isla-herramientas 
+    (toolSelected)="handleToolSelected($event)" 
+    (deleteSelected)="onDeleteSelected()"
+    [hasSelectedElement]="hasSelectedElement" />
 </main>
