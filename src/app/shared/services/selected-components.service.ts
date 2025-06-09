@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { ProjectGeneratorService } from './project-generator.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class SelectedComponentsService {
   private componentRemovedSubject = new Subject<any>();
   public componentRemoved$ = this.componentRemovedSubject.asObservable();
 
-  constructor() {}
+  constructor(private projectGeneratorService: ProjectGeneratorService) {}
 
   addComponent(componente: any): void {
     const currentComponents = this.selectedComponentsSubject.value;
@@ -47,5 +48,15 @@ export class SelectedComponentsService {
 
   getSelectedComponents(): Observable<any[]> {
     return this.selectedComponents$;
+  }
+
+  async generateAngularProject(projectName?: string): Promise<void> {
+    const components = this.selectedComponentsSubject.value;
+    if (components.length === 0) {
+      throw new Error('No components selected for project generation');
+    }
+    
+    const name = projectName || 'my-angular-project';
+    await this.projectGeneratorService.generateAngularProject(components, name);
   }
 }
