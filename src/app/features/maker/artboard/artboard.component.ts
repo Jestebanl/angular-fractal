@@ -34,9 +34,9 @@ interface DrawingElement {
 export class ArtboardComponent {
   cdkDrag!: boolean;
   @ViewChild('boundaryElement', { static: true }) boundaryElement!: ElementRef;
-  
+
   toastPosition = { x: 0, y: 0 };
-  
+
   // Drawing tools state
   currentTool: DrawingTool = 'pointer';
   isDrawing = false;
@@ -45,7 +45,7 @@ export class ArtboardComponent {
   currentElement: DrawingElement | null = null;
 
   @ViewChild('toastContainer', { read: ViewContainerRef, static: true }) toastContainer!: ViewContainerRef;
-  
+
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private componenteService: ComponenteService,
@@ -53,7 +53,7 @@ export class ArtboardComponent {
     private _authState: AuthStateService,
     private _router: Router,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   // Color schemes for light/dark mode
   colorScheme = {
@@ -83,8 +83,8 @@ export class ArtboardComponent {
 
   // Check if we're in dark mode
   get isDarkMode(): boolean {
-    return document.documentElement.classList.contains('dark') || 
-           window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return document.documentElement.classList.contains('dark') ||
+      window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
   // Get current color scheme based on mode
@@ -94,7 +94,7 @@ export class ArtboardComponent {
 
   handleToolSelected(tool: DrawingTool): void {
     this.currentTool = tool;
-    
+
     // Deselect all elements when changing tools
     this.drawingElements.forEach(el => el.selected = false);
   }
@@ -104,14 +104,14 @@ export class ArtboardComponent {
     if (this.currentTool !== 'pointer') {
       this.isDrawing = true;
       const rect = this.boundaryElement.nativeElement.getBoundingClientRect();
-      this.startPoint = { 
-        x: event.clientX - rect.left, 
-        y: event.clientY - rect.top 
+      this.startPoint = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
       };
-      
+
       const elementId = `drawing-${Date.now()}`;
       const colors = this.currentColorScheme;
-      
+
       // Initialize the new element based on tool type
       if (this.currentTool === 'rectangle') {
         this.currentElement = {
@@ -142,17 +142,17 @@ export class ArtboardComponent {
           shadow: true
         };
       }
-      
+
       this.drawingElements.push(this.currentElement);
     } else {
       // Handle selection when in pointer mode
       const rect = this.boundaryElement.nativeElement.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
-      
+
       // Deselect all first
       this.drawingElements.forEach(el => el.selected = false);
-      
+
       // Find and select clicked element (iterate in reverse to get top-most element first)
       for (let i = this.drawingElements.length - 1; i >= 0; i--) {
         const el = this.drawingElements[i];
@@ -171,7 +171,7 @@ export class ArtboardComponent {
       const maxX = Math.max(el.x1, el.x2);
       const minY = Math.min(el.y1, el.y2);
       const maxY = Math.max(el.y1, el.y2);
-      
+
       return x >= minX && x <= maxX && y >= minY && y <= maxY;
     } else if (el.type === 'arrow') {
       // Simple proximity check for arrows
@@ -179,19 +179,19 @@ export class ArtboardComponent {
       const dx = el.x2 - el.x1;
       const dy = el.y2 - el.y1;
       const length = Math.sqrt(dx * dx + dy * dy);
-      
+
       if (length === 0) return false;
-      
+
       const dotProduct = ((x - el.x1) * dx + (y - el.y1) * dy) / length;
       const projX = el.x1 + (dotProduct * dx) / length;
       const projY = el.y1 + (dotProduct * dy) / length;
-      
+
       const distToLine = Math.sqrt(Math.pow(x - projX, 2) + Math.pow(y - projY, 2));
       const withinLineSegment = dotProduct >= 0 && dotProduct <= length;
-      
+
       return withinLineSegment && distToLine <= tolerance;
     }
-    
+
     return false;
   }
 
@@ -200,7 +200,7 @@ export class ArtboardComponent {
       const rect = this.boundaryElement.nativeElement.getBoundingClientRect();
       const currentX = event.clientX - rect.left;
       const currentY = event.clientY - rect.top;
-      
+
       this.currentElement.x2 = currentX;
       this.currentElement.y2 = currentY;
     }
@@ -218,7 +218,7 @@ export class ArtboardComponent {
     const width = Math.abs(el.x2 - el.x1);
     const height = Math.abs(el.y2 - el.y1);
     const rx = el.rx || 0;
-    
+
     // Create rounded rectangle path
     return `M${minX + rx},${minY} 
             h${width - 2 * rx} 
@@ -237,33 +237,38 @@ export class ArtboardComponent {
     const dy = el.y2 - el.y1;
     const angle = Math.atan2(dy, dx);
     const length = Math.sqrt(dx * dx + dy * dy);
-    
+
     // Don't draw arrow heads for very short arrows
     if (length < 15) {
       return `M${el.x1},${el.y1} L${el.x2},${el.y2}`;
     }
-    
+
     // Adjust arrow head size based on arrow length
     const headLength = Math.min(15, Math.max(10, length / 5));
     const headAngle = Math.PI / 6; // 30 degrees
-    
+
     // Calculate arrow head coordinates
     const head1X = el.x2 - headLength * Math.cos(angle - headAngle);
     const head1Y = el.y2 - headLength * Math.sin(angle - headAngle);
     const head2X = el.x2 - headLength * Math.cos(angle + headAngle);
     const head2Y = el.y2 - headLength * Math.sin(angle + headAngle);
-    
+
     return `M${el.x1},${el.y1} L${el.x2},${el.y2} M${head1X},${head1Y} L${el.x2},${el.y2} L${head2X},${head2Y}`;
   }
 
   insertarComponente(componente: any) {
     if (componente.toastReferenciado) {
-      this.componenteService.getToastReferenciado(componente.toastReferenciado.id).subscribe(
-        (toastData) => {
-          this.crearToastDinamico(toastData);
+      this.componenteService.getComponenteConToast(componente).subscribe(
+        (data) => {
+          // Use the component's name for the message
+          const toastDataWithMessage = {
+            ...data.toast,
+            message: data.componente.nombre // Use component's name as message
+          };
+          this.crearToastDinamico(toastDataWithMessage);
         },
         (error) => {
-          console.error('Error al obtener datos del toast:', error);
+          console.error('Error al obtener datos del componente y toast:', error);
         }
       );
     }
@@ -273,7 +278,7 @@ export class ArtboardComponent {
     this.ngZone.run(() => {
       const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ToastLibreriaComponent);
       const componentRef = this.toastContainer.createComponent(componentFactory);
-      
+
       Object.keys(toastData).forEach(key => {
         (componentRef.instance as any)[key] = toastData[key];
       });
