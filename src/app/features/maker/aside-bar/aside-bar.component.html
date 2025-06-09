@@ -1,4 +1,4 @@
-<aside class="h-full bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto">
+<aside class="h-full bg-gray-100 dark:bg-gray-800 p-4 overflow-y-auto flex flex-col">
   <div class="flex items-center justify-between mb-6">
     <div class="flex items-center">
       <img src="logoFractal.png" alt="Logo" class="w-8 h-8 mr-3" />
@@ -23,37 +23,43 @@
     </button>
   </div>
 
-  <ul class="space-y-2 min-h-4/5">
-    <li *ngFor="let category of categories" class="bg-gray-200 dark:bg-gray-700 dark:text-green-300 rounded overflow-hidden">
-      <div (click)="category.isOpen = !category.isOpen"
-        class="p-2 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 flex justify-between items-center">
-        <span>{{ category.name }}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform"
-          [ngClass]="{'rotate-180': category.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-      <ul *ngIf="category.isOpen" class="pl-4 py-2 space-y-1">
-        <li *ngFor="let type of category.types" class="bg-gray-100 dark:bg-gray-600 rounded overflow-hidden">
-          <div (click)="type.isOpen = !type.isOpen"
-            class="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500 flex justify-between items-center">
-            <span>{{ type.name }}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
-              [ngClass]="{'rotate-180': type.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-          <ul *ngIf="type.isOpen" class="pl-4 py-1 space-y-1">
-            <li *ngFor="let component of type.components" (click)="abrirPopup(component)"
-              class="p-2 bg-gray-50 dark:bg-gray-500 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-400">
-              {{ component.nombre }}
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <div class="mt-4 flex justify-center">
+  <div class="flex-1 overflow-y-auto">
+    <ul class="space-y-2 mb-4">
+      <li *ngFor="let category of categories" class="bg-gray-200 dark:bg-gray-700 dark:text-green-300 rounded overflow-hidden">
+        <div (click)="category.isOpen = !category.isOpen"
+          class="p-2 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 flex justify-between items-center">
+          <span>{{ category.name }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform"
+            [ngClass]="{'rotate-180': category.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+        <ul *ngIf="category.isOpen" class="pl-4 py-2 space-y-1">
+          <li *ngFor="let type of category.types" class="bg-gray-100 dark:bg-gray-600 rounded overflow-hidden">
+            <div (click)="type.isOpen = !type.isOpen"
+              class="p-2 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-500 flex justify-between items-center">
+              <span>{{ type.name }}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform"
+                [ngClass]="{'rotate-180': type.isOpen}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <ul *ngIf="type.isOpen" class="pl-4 py-1 space-y-1">
+              <li *ngFor="let component of type.components" (click)="abrirPopup(component)"
+                class="p-2 bg-gray-50 dark:bg-gray-500 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-400">
+                {{ component.nombre }}
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <!-- Lista de componentes seleccionados -->
+    <app-lista-componentes></app-lista-componentes>
+  </div>
+
+  <div class="mt-auto mb-4 pt-4 flex justify-center">
     <button
       class="w-full max-w-xs p-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 transition-colors">
       Generar
