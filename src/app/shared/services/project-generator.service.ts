@@ -19,26 +19,35 @@ export class ProjectGeneratorService {
   constructor() {}
 
   async generateAngularProject(components: SelectedComponent[], projectName: string = 'generated-angular-app'): Promise<void> {
-    const zip = new JSZip();
-    
-    // Create basic Angular project structure
-    this.createProjectStructure(zip, projectName);
-    
-    // Generate components
-    this.generateComponents(zip, components);
-    
-    // Generate routing
-    this.generateRouting(zip, components);
-    
-    // Generate app.module.ts with imports
-    this.generateAppModule(zip, components);
-    
-    // Generate package.json
-    this.generatePackageJson(zip, projectName);
-    
-    // Generate the ZIP file and download
-    const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, `${projectName}.zip`);
+    try {
+      if (!components || components.length === 0) {
+        throw new Error('No components provided for project generation');
+      }
+
+      const zip = new JSZip();
+      
+      // Create basic Angular project structure
+      this.createProjectStructure(zip, projectName);
+      
+      // Generate components
+      this.generateComponents(zip, components);
+      
+      // Generate routing
+      this.generateRouting(zip, components);
+      
+      // Generate app.module.ts with imports
+      this.generateAppModule(zip, components);
+      
+      // Generate package.json
+      this.generatePackageJson(zip, projectName);
+      
+      // Generate the ZIP file and download
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, `${projectName}.zip`);
+    } catch (error) {
+      console.error('Error generating Angular project:', error);
+      throw error;
+    }
   }
 
   private createProjectStructure(zip: JSZip, projectName: string): void {
@@ -63,15 +72,120 @@ export class ProjectGeneratorService {
     // Create styles.css
     srcFolder?.file('styles.css', this.getGlobalStylesTemplate());
     
+    // Create favicon.ico (placeholder)
+    srcFolder?.file('favicon.ico', '');
+    
     // Create README.md
     zip.file('README.md', this.getReadmeTemplate(projectName));
   }
-    getIndexHtmlTemplate(projectName: string): null {
-        throw new Error('Method not implemented.');
-    }
-    getGlobalStylesTemplate(): null {
-        throw new Error('Method not implemented.');
-    }
+
+  private getIndexHtmlTemplate(projectName: string): string {
+    return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>${this.pascalCase(projectName)}</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>`;
+  }
+
+  private getGlobalStylesTemplate(): string {
+    return `/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  background-color: #1976d2;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  margin-top: 0.5rem;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.nav-links a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.component-container {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.component-title {
+  color: #1976d2;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+}
+
+.component-description {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .component-container {
+    padding: 1rem;
+  }
+}`;
+  }
 
   private generateComponents(zip: JSZip, components: SelectedComponent[]): void {
     const appFolder = zip.folder('src')?.folder('app');
@@ -97,12 +211,31 @@ export class ProjectGeneratorService {
         this.getComponentCssTemplate());
     });
   }
-    getComponentCssTemplate(): null {
-        throw new Error('Method not implemented.');
-    }
-    getComponentHtmlTemplate(component: SelectedComponent): null {
-        throw new Error('Method not implemented.');
-    }
+
+  private getComponentHtmlTemplate(component: SelectedComponent): string {
+    return `<div class="component-container">
+  <h2 class="component-title">{{ title }}</h2>
+  <p class="component-description">{{ description }}</p>
+  
+  <div class="component-content">
+    <p>Este es el componente <strong>${component.nombre}</strong> de la categoría <em>${component.categoria}</em>.</p>
+    <p>Tipo: <span class="badge">${component.tipo}</span></p>
+    
+    ${component.propiedades && component.propiedades.length > 0 ? `
+    <div class="properties-section">
+      <h3>Propiedades:</h3>
+      <ul class="properties-list">
+        ${component.propiedades.map(prop => `<li>${JSON.stringify(prop)}</li>`).join('')}
+      </ul>
+    </div>
+    ` : ''}
+  </div>
+</div>`;
+  }
+
+  private getComponentCssTemplate(): string {
+    return ``;
+  }
 
   private generateRouting(zip: JSZip, components: SelectedComponent[]): void {
     const appFolder = zip.folder('src')?.folder('app');
@@ -126,9 +259,10 @@ export class ProjectGeneratorService {
     // Generate app.config.ts (new configuration approach)
     appFolder?.file('app.config.ts', this.getAppConfigTemplate());
   }
-    getAppComponentCssTemplate(): null {
-        throw new Error('Method not implemented.');
-    }
+
+  private getAppComponentCssTemplate(): string {
+    return ``;
+  }
 
   private generatePackageJson(zip: JSZip, projectName: string): void {
     zip.file('package.json', this.getPackageJsonTemplate(projectName));
