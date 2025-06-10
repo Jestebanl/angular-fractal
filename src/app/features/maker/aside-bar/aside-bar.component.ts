@@ -109,4 +109,15 @@ export class AsideBarComponent implements OnInit {
     
     this.cerrarPopup();
   }
+
+  async onGenerateProject(): Promise<void> {
+    try {
+      await this.selectedComponentsService.generateAngularProject('mi-proyecto-angular');
+      console.log('Proyecto generado exitosamente');
+    } catch (error) {
+      console.error('Error al generar el proyecto:', error);
+      // Optionally show a user-friendly error message
+      alert('Error al generar el proyecto. Asegúrate de tener componentes seleccionados.');
+    }
+  }
 }
