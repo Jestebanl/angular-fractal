@@ -191,50 +191,63 @@ body {
     const appFolder = zip.folder('src')?.folder('app');
     
     components.forEach(component => {
-      const componentPath = this.getComponentPath(component.ruta);
-      const componentFolder = this.createNestedFolder(appFolder ?? null, componentPath);
-      
-      // Generate component files
-      const componentName = this.getComponentName(component.ruta);
-      const className = this.pascalCase(componentName);
-      
-      // Component TypeScript file (standalone)
-      componentFolder?.file(`${componentName}.component.ts`, 
-        this.getStandaloneComponentTsTemplate(className, componentName, component));
-      
-      // Component HTML file
-      componentFolder?.file(`${componentName}.component.html`, 
-        this.getComponentHtmlTemplate(component));
-      
-      // Component CSS file
-      componentFolder?.file(`${componentName}.component.css`, 
-        this.getComponentCssTemplate());
+      this.generateAngularArtifact(appFolder ?? null, component);
     });
   }
 
-  private getComponentHtmlTemplate(component: SelectedComponent): string {
-    return `<div class="component-container">
-  <h2 class="component-title">{{ title }}</h2>
-  <p class="component-description">{{ description }}</p>
-  
-  <div class="component-content">
-    <p>Este es el componente <strong>${component.nombre}</strong> de la categoría <em>${component.categoria}</em>.</p>
-    <p>Tipo: <span class="badge">${component.tipo}</span></p>
-    
-    ${component.propiedades && component.propiedades.length > 0 ? `
-    <div class="properties-section">
-      <h3>Propiedades:</h3>
-      <ul class="properties-list">
-        ${component.propiedades.map(prop => `<li>${JSON.stringify(prop)}</li>`).join('')}
-      </ul>
-    </div>
-    ` : ''}
-  </div>
-</div>`;
+  private generateAngularArtifact(appFolder: JSZip | null, component: SelectedComponent): void {
+    const itemPath = this.getItemPath(component.ruta, component.categoria);
+    const itemFolder = this.createNestedFolder(appFolder ?? null, itemPath);
+    const itemName = this.getItemName(component.ruta, component.categoria);
+    const className = this.pascalCase(itemName);
+
+    switch (component.categoria.toLowerCase()) {
+      case 'componentes de ui':
+        this.generateComponent(itemFolder, itemName, className, component);
+        break;
+      case 'servicios':
+        this.generateService(itemFolder, itemName, className, component);
+        break;
+      case 'guards':
+        this.generateGuard(itemFolder, itemName, className, component);
+        break;
+      case 'modelos':
+        this.generateModel(itemFolder, itemName, className, component);
+        break;
+      default:
+        // Default to component if category is unknown
+        this.generateComponent(itemFolder, itemName, className, component);
+        break;
+    }
   }
 
-  private getComponentCssTemplate(): string {
-    return ``;
+  private generateComponent(folder: JSZip | null, itemName: string, className: string, component: SelectedComponent): void {
+    // Component TypeScript file (standalone)
+    folder?.file(`${itemName}.component.ts`, 
+      this.getStandaloneComponentTsTemplate(className, itemName, component));
+    
+    // Component HTML file
+    folder?.file(`${itemName}.component.html`, 
+      this.getComponentHtmlTemplate(component));
+    
+    // Component CSS file
+    folder?.file(`${itemName}.component.css`, 
+      this.getComponentCssTemplate());
+  }
+
+  private generateService(folder: JSZip | null, itemName: string, className: string, component: SelectedComponent): void {
+    folder?.file(`${itemName}.service.ts`, 
+      this.getServiceTemplate(className, itemName, component));
+  }
+
+  private generateGuard(folder: JSZip | null, itemName: string, className: string, component: SelectedComponent): void {
+    folder?.file(`${itemName}.guard.ts`, 
+      this.getGuardTemplate(className, itemName, component));
+  }
+
+  private generateModel(folder: JSZip | null, itemName: string, className: string, component: SelectedComponent): void {
+    folder?.file(`${itemName}.model.ts`, 
+      this.getModelTemplate(className, itemName, component));
   }
 
   private generateRouting(zip: JSZip, components: SelectedComponent[]): void {
@@ -260,52 +273,118 @@ body {
     appFolder?.file('app.config.ts', this.getAppConfigTemplate());
   }
 
-  private getAppComponentCssTemplate(): string {
-    return ``;
-  }
-
   private generatePackageJson(zip: JSZip, projectName: string): void {
     zip.file('package.json', this.getPackageJsonTemplate(projectName));
   }
 
-  private getComponentPath(ruta: string): string {
-    // Convert "./lib/components/admin/tabla-datos/tabla-datos.component" to "components/admin/tabla-datos"
-    return ruta.replace(/^\.\/lib\//, '').replace(/\/[^\/]+\.component$/, '');
+  private getComponentHtmlTemplate(component: SelectedComponent): string {
+    return `<div class="component-container">
+  
+  <div class="component-content">
+    <p>Este es el componente <strong>${component.nombre}</strong> de la categoría <em>${component.categoria}</em>.</p>
+    <p>Tipo: <span class="badge">${component.tipo}</span></p>
+  </div>
+</div>`;
   }
 
-  private getComponentName(ruta: string): string {
-    // Extract component name from path
-    const parts = ruta.split('/');
-    const lastPart = parts[parts.length - 1];
-    return lastPart.replace('.component', '');
+  private getComponentCssTemplate(): string {
+    return ``;
   }
 
-  private createNestedFolder(parentFolder: JSZip | null, path: string): JSZip | null {
-    if (!parentFolder) return null;
-    
-    const parts = path.split('/');
-    let currentFolder: JSZip | null = parentFolder;
-    
-    parts.forEach(part => {
-      if (part && currentFolder) {
-        currentFolder = currentFolder.folder(part);
-      }
-    });
-    
-    return currentFolder;
+  private getAppComponentCssTemplate(): string {
+    return `.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.navbar {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.nav-links {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .navbar h1 {
+    font-size: 1.5rem;
+  }
+  
+  .nav-links {
+    margin-top: 0.5rem;
+  }
+  
+  .nav-links a {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+}`;
   }
 
-  private pascalCase(str: string): string {
-    return str.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join('');
-  }
-
-  private kebabCase(str: string): string {
-    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-  }
-
-  // Updated template methods for Angular 19+
   private getAngularJsonTemplate(projectName: string): string {
     return `{
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
@@ -471,19 +550,222 @@ export class ${className}Component implements OnInit {
   ngOnInit(): void {
     console.log('${className}Component initialized');
   }
+
+  onAction(): void {
+    console.log('Primary action executed in ${className}Component');
+    // Add your primary action logic here
+  }
+
+  onSecondaryAction(): void {
+    console.log('Secondary action executed in ${className}Component');
+    // Add your secondary action logic here
+  }
 }`;
   }
 
+  private getServiceTemplate(className: string, serviceName: string, component: SelectedComponent): string {
+    return `import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ${className}Service {
+
+  constructor() { }
+
+  // Service methods for ${component.nombre}
+  getData(): Observable<any[]> {
+    // TODO: Implement actual data fetching logic
+    console.log('${className}Service: getData called');
+    return of([]);
+  }
+
+  getById(id: string | number): Observable<any> {
+    // TODO: Implement get by id logic
+    console.log('${className}Service: getById called with id:', id);
+    return of({});
+  }
+
+  create(data: any): Observable<any> {
+    // TODO: Implement create logic
+    console.log('${className}Service: create called with data:', data);
+    return of(data);
+  }
+
+  update(id: string | number, data: any): Observable<any> {
+    // TODO: Implement update logic
+    console.log('${className}Service: update called with id:', id, 'data:', data);
+    return of(data);
+  }
+
+  delete(id: string | number): Observable<boolean> {
+    // TODO: Implement delete logic
+    console.log('${className}Service: delete called with id:', id);
+    return of(true);
+  }
+
+  ${component.propiedades && component.propiedades.length > 0 ? 
+    `// Custom methods based on properties
+  ${component.propiedades.map(prop => 
+    `// Property: ${JSON.stringify(prop)}`
+  ).join('\n  ')}` : ''}
+}`;
+  }
+
+  private getGuardTemplate(className: string, guardName: string, component: SelectedComponent): string {
+    return `import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ${className}Guard implements CanActivate {
+
+  constructor(private router: Router) { }
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    
+    console.log('${className}Guard: Checking access for route:', state.url);
+    
+    // TODO: Implement your guard logic here
+    // Example: Check if user is authenticated, has permissions, etc.
+    
+    const hasAccess = this.checkAccess(route, state);
+    
+    if (!hasAccess) {
+      console.log('${className}Guard: Access denied, redirecting...');
+      // Redirect to login or unauthorized page
+      this.router.navigate(['/login']);
+      return false;
+    }
+    
+    console.log('${className}Guard: Access granted');
+    return true;
+  }
+
+  private checkAccess(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // TODO: Implement your access checking logic
+    // This could check:
+    // - User authentication status
+    // - User roles/permissions
+    // - Route parameters
+    // - Application state
+    
+    // For now, return true (allow access)
+    // Replace with actual logic
+    return true;
+  }
+
+  ${component.propiedades && component.propiedades.length > 0 ? 
+    `// Guard configuration based on properties
+  ${component.propiedades.map(prop => 
+    `// Property: ${JSON.stringify(prop)}`
+  ).join('\n  ')}` : ''}
+}`;
+  }
+
+  private getModelTemplate(className: string, modelName: string, component: SelectedComponent): string {
+    const properties = component.propiedades && component.propiedades.length > 0 
+      ? component.propiedades.map(prop => {
+          if (typeof prop === 'object' && prop.nombre && prop.tipo) {
+            return `  ${prop.nombre}${prop.requerido === false ? '?' : ''}: ${this.mapTypeToTypescript(prop.tipo)};`;
+          }
+          return `  // Property: ${JSON.stringify(prop)}`;
+        }).join('\n')
+      : `  id: string | number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;`;
+
+    return `// Model/Interface for ${component.nombre}
+export interface ${className} {
+${properties}
+}
+
+// Optional: Export as class if you need methods
+export class ${className}Model implements ${className} {
+${properties}
+
+  constructor(data: Partial<${className}> = {}) {
+    Object.assign(this, data);
+  }
+
+  // Add any model-specific methods here
+  toString(): string {
+    return JSON.stringify(this);
+  }
+
+  isValid(): boolean {
+    // TODO: Implement validation logic
+    return true;
+  }
+}
+
+// Optional: Type guards
+export function is${className}(obj: any): obj is ${className} {
+  return obj && typeof obj === 'object';
+}
+
+// Optional: Default/empty instance
+export const default${className}: ${className} = {} as ${className};`;
+  }
+
+  private mapTypeToTypescript(type: string): string {
+    switch (type?.toLowerCase()) {
+      case 'string':
+      case 'text':
+        return 'string';
+      case 'number':
+      case 'int':
+      case 'integer':
+      case 'float':
+      case 'double':
+        return 'number';
+      case 'boolean':
+      case 'bool':
+        return 'boolean';
+      case 'date':
+      case 'datetime':
+        return 'Date';
+      case 'array':
+        return 'any[]';
+      case 'object':
+        return 'any';
+      default:
+        return 'any';
+    }
+  }
+
   private getRoutesTemplate(components: SelectedComponent[]): string {
-    const imports = components.map(comp => {
-      const className = this.pascalCase(this.getComponentName(comp.ruta));
-      const path = this.getComponentPath(comp.ruta) + '/' + this.getComponentName(comp.ruta) + '.component';
+    // Only include components that are actual UI components in routes
+    const uiComponents = components.filter(comp => 
+      comp.categoria.toLowerCase() === 'components' || 
+      comp.categoria.toLowerCase() === 'component'
+    );
+
+    if (uiComponents.length === 0) {
+      return `import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '**', redirectTo: '/home' }
+];`;
+    }
+
+    const imports = uiComponents.map(comp => {
+      const className = this.pascalCase(this.getItemName(comp.ruta, comp.categoria));
+      const path = this.getItemPath(comp.ruta, comp.categoria) + '/' + this.getItemName(comp.ruta, comp.categoria) + '.component';
       return `import { ${className}Component } from './${path}';`;
     }).join('\n');
 
-    const routes = components.map(comp => {
-      const className = this.pascalCase(this.getComponentName(comp.ruta));
-      const routePath = this.kebabCase(this.getComponentName(comp.ruta));
+    const routes = uiComponents.map(comp => {
+      const className = this.pascalCase(this.getItemName(comp.ruta, comp.categoria));
+      const routePath = this.kebabCase(this.getItemName(comp.ruta, comp.categoria));
       return `  { path: '${routePath}', component: ${className}Component }`;
     }).join(',\n');
 
@@ -492,8 +774,8 @@ ${imports}
 
 export const routes: Routes = [
 ${routes},
-  { path: '', redirectTo: '/${this.kebabCase(this.getComponentName(components[0]?.ruta || 'home'))}', pathMatch: 'full' },
-  { path: '**', redirectTo: '/${this.kebabCase(this.getComponentName(components[0]?.ruta || 'home'))}' }
+  { path: '', redirectTo: '/${this.kebabCase(this.getItemName(uiComponents[0]?.ruta || 'home', uiComponents[0]?.categoria || 'component'))}', pathMatch: 'full' },
+  { path: '**', redirectTo: '/${this.kebabCase(this.getItemName(uiComponents[0]?.ruta || 'home', uiComponents[0]?.categoria || 'component'))}' }
 ];`;
   }
 
@@ -614,5 +896,62 @@ This project includes the following generated components:
 
 To get more help on the Angular CLI use \`ng help\` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 `;
+  }
+
+  private getItemPath(ruta: string, categoria: string): string {
+    // Convert "./lib/components/admin/tabla-datos/tabla-datos.component" to appropriate path
+    let basePath = ruta.replace(/^\.\/lib\//, '').replace(/\/[^\/]+\.(component|service|guard|model)$/, '');
+    
+    // Ensure proper folder structure based on category
+    switch (categoria.toLowerCase()) {
+      case 'services':
+      case 'service':
+        basePath = basePath.replace(/^components\//, 'services/');
+        break;
+      case 'guards':
+      case 'guard':
+        basePath = basePath.replace(/^components\//, 'guards/');
+        break;
+      case 'models':
+      case 'model':
+      case 'interfaces':
+      case 'interface':
+        basePath = basePath.replace(/^components\//, 'models/');
+        break;
+    }
+    
+    return basePath;
+  }
+
+  private getItemName(ruta: string, categoria: string): string {
+    // Extract item name from path
+    const parts = ruta.split('/');
+    const lastPart = parts[parts.length - 1];
+    return lastPart.replace(/\.(component|service|guard|model)$/, '');
+  }
+
+  private createNestedFolder(parentFolder: JSZip | null, path: string): JSZip | null {
+    if (!parentFolder) return null;
+    
+    const parts = path.split('/');
+    let currentFolder: JSZip | null = parentFolder;
+    
+    parts.forEach(part => {
+      if (part && currentFolder) {
+        currentFolder = currentFolder.folder(part);
+      }
+    });
+    
+    return currentFolder;
+  }
+
+  private pascalCase(str: string): string {
+    return str.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join('');
+  }
+
+  private kebabCase(str: string): string {
+    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
   }
 }
